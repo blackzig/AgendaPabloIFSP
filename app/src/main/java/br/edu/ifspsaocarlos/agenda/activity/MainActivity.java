@@ -179,10 +179,7 @@ public class MainActivity extends AppCompatActivity{
                 .show();
     }
 
-
-
-    private void updateUI(String nomeContato)
-    {
+    private void updateUI(String nomeContato){
 
         contatos.clear();
 

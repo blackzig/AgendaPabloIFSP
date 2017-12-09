@@ -3,8 +3,12 @@ package br.edu.ifspsaocarlos.agenda.data;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
+import br.edu.ifspsaocarlos.agenda.message.Message;
 import br.edu.ifspsaocarlos.agenda.model.Contato;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,15 +18,34 @@ public class ContatoDAO {
     private SQLiteDatabase database;
     private SQLiteHelper dbHelper;
 
+    private Context appContext;
+
+    List<Contato> contatos = new ArrayList<>();
+
     public ContatoDAO(Context context) {
         this.dbHelper=new SQLiteHelper(context);
+        this.appContext = context;
     }
 
     public  List<Contato> buscaTodosContatos()
     {
-        database=dbHelper.getReadableDatabase();
-        List<Contato> contatos = new ArrayList<>();
+        SharedPreferences prefs = appContext.getSharedPreferences("Versoes", 0);
+        String versao = prefs.getString("versao", null);
+        int version = Integer.parseInt(versao);
 
+        database=dbHelper.getReadableDatabase();
+
+        switch (version){
+            case 1:
+                searchAllContactsVersion1();
+                break;
+            default:
+                Message m = new Message();
+                m.LongMessage(appContext, "Deu ruim no ContatoDAO");
+        }
+
+        //List<Contato> contatos = new ArrayList<>();
+/*
         Cursor cursor;
 
         String[] cols=new String[] {SQLiteHelper.KEY_ID,SQLiteHelper.KEY_NAME, SQLiteHelper.KEY_FONE, SQLiteHelper.KEY_EMAIL};
@@ -41,12 +64,37 @@ public class ContatoDAO {
 
 
         }
-        cursor.close();
 
+        cursor.close();
+*/
 
         database.close();
         return contatos;
     }
+
+    private void searchAllContactsVersion1(){
+        contatos.clear();
+        Cursor cursor;
+
+        String[] cols=new String[] {SQLiteHelper.KEY_ID,SQLiteHelper.KEY_NAME, SQLiteHelper.KEY_FONE, SQLiteHelper.KEY_EMAIL};
+
+        cursor = database.query(SQLiteHelper.DATABASE_TABLE, cols, null , null,
+                null, null, SQLiteHelper.KEY_NAME);
+
+        while (cursor.moveToNext())
+        {
+            Contato contato = new Contato();
+            contato.setId(cursor.getInt(0));
+            contato.setNome(cursor.getString(1));
+            contato.setFone(cursor.getString(2));
+            contato.setEmail(cursor.getString(3));
+            contatos.add(contato);
+        }
+        cursor.close();
+    }
+
+
+
 
     public  List<Contato> buscaContato(String nome)
     {
