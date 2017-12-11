@@ -46,5 +46,4 @@
         android:text="@string/lista_vazia"
         android:textSize="30sp"/>
 
-
 </android.support.design.widget.CoordinatorLayout>

@@ -1,9 +1,11 @@
 package br.edu.ifspsaocarlos.agenda.activity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -11,6 +13,7 @@ import android.widget.EditText;
 import br.edu.ifspsaocarlos.agenda.data.ContatoDAO;
 import br.edu.ifspsaocarlos.agenda.model.Contato;
 import br.edu.ifspsaocarlos.agenda.R;
+import br.edu.ifspsaocarlos.agenda.model.ContatoV2;
 
 
 public class DetalheActivity extends AppCompatActivity {

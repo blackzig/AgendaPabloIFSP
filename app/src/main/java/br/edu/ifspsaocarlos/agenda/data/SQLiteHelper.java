@@ -16,6 +16,7 @@ class SQLiteHelper extends SQLiteOpenHelper {
     static final String KEY_NAME = "nome";
     static final String KEY_FONE = "fone";
     static final String KEY_EMAIL = "email";
+    static final String KEY_FAVORITE = "favorite";
     private static int DATABASE_VERSION = 1;
     private static final String DATABASE_CREATE = "CREATE TABLE "+ DATABASE_TABLE +" (" +
             KEY_ID  +  " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -44,6 +45,13 @@ class SQLiteHelper extends SQLiteOpenHelper {
         Log.i("onUpgrade - newVersion>", String.valueOf(newVersion));
     }
 
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+       // super.onDowngrade(db, oldVersion, newVersion);
+        Log.i("onDown - oldVersion>", String.valueOf(oldVersion));
+        Log.i("onDown - newVersion>", String.valueOf(newVersion));
+    }
+
     private void changeVersion(){
         SharedPreferences prefs = appContext.getSharedPreferences("Versoes", 0);
         String versao = prefs.getString("versao", null);
@@ -59,14 +67,16 @@ class SQLiteHelper extends SQLiteOpenHelper {
                 case 1:
                     SQLiteDatabase db = getWritableDatabase();
                     String sql = "";
-                    /*sql = "DROP TABLE IF EXISTS "+DATABASE_TABLE;
+                    sql = "DROP TABLE IF EXISTS "+DATABASE_TABLE;
                     db.execSQL(sql);
-                    onCreate(db);*/
+                    onCreate(db);
                     break;
                 case 2:
+                    Log.i("UPDATE>>>","Vá para a versão 2");
                     db = getWritableDatabase();
-                    sql = "ALTER TABLE "+DATABASE_TABLE+" ADD COLUMN favorite INTEGER";
+                    sql = "ALTER TABLE "+DATABASE_TABLE+" ADD COLUMN favorite INTEGER DEFAULT 0";
                     db.execSQL(sql); // indo para versao 2
+                    onUpgrade(db, 1, 2);
                     break;
                 default:
                     Message m = new Message();
