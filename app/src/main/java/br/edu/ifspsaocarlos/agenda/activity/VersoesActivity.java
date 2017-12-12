@@ -21,7 +21,7 @@ import br.edu.ifspsaocarlos.agenda.message.Message;
 public class VersoesActivity extends AppCompatActivity {
     Spinner spinner_versions;
     Button button_save_version;
-    TextView show_version;
+    TextView show_version, description;
 
     Message m = new Message();
 
@@ -34,6 +34,7 @@ public class VersoesActivity extends AppCompatActivity {
 
         spinner_versions = findViewById(R.id.spinner_versions);
         button_save_version = findViewById(R.id.button_save_version);
+        description = findViewById(R.id.description);
 
         button_save_version.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,6 +71,11 @@ public class VersoesActivity extends AppCompatActivity {
                 if(isFirstTime>0){
                     String versao = spinner_versions.getSelectedItem().toString();
                     m.ShortMessage(VersoesActivity.this, "Versão " + versao +" escolhida.");
+
+                    if(versao.equals("1")){
+                        description.setText("Na versão um, somente é possível cadastrar um contato com nome, " +
+                                "telefone e email.");
+                    }
                 }
                 isFirstTime=1;
             }

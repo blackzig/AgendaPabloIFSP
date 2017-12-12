@@ -125,6 +125,18 @@ public class MainActivity extends AppCompatActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        int version = Integer.parseInt(versao);
+
+        MenuItem jf = menu.findItem(R.id.just_favorites);
+        MenuItem ac = menu.findItem(R.id.all_contacts);
+
+        if(version==1){
+            jf.setVisible(false);
+            ac.setVisible(false);
+        }else{
+            jf.setVisible(true);
+            ac.setVisible(true);
+        }
 
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         searchView = (SearchView) menu.findItem(R.id.pesqContato).getActionView();
@@ -153,6 +165,19 @@ public class MainActivity extends AppCompatActivity{
         switch (item.getItemId()){
             case R.id.versoes:
                 startActivity(new Intent(this, VersoesActivity.class));
+                break;
+            case R.id.just_favorites:
+                contatosV2.clear();
+                adapterV2 = new ContatoAdapterV2(contatosV2, this);
+                recyclerView.setAdapter(adapterV2);
+                setupRecyclerViewV2();
+
+                contatosV2.addAll(cDAO.returnJustFavoritesContacts());
+                empty.setText(getResources().getString(R.string.contato_nao_encontrado));
+                fab.setVisibility(View.VISIBLE);
+                break;
+            case R.id.all_contacts:
+                searchAllContacts(null, "2");
                 break;
             default:
                 break;
@@ -185,6 +210,10 @@ public class MainActivity extends AppCompatActivity{
     }
 
     private void updateUI(String nomeContato){
+        //Na primeira vez que o sistema é instalado deve ter o SharedPreferences aqui, senão gera uma exceção
+        SharedPreferences prefs = getSharedPreferences("Versoes", 0);
+        versao = prefs.getString("versao", null);
+
         searchAllContacts(nomeContato, versao);
 
         recyclerView.getAdapter().notifyDataSetChanged();
@@ -204,7 +233,6 @@ public class MainActivity extends AppCompatActivity{
             setupRecyclerView();
 
             if (nomeContato==null) {
-                Log.i("Buscar todosV1>>>>>>", "nulo v1");
                 contatos.addAll(cDAO.<Contato>buscaTodosContatos());
                 empty.setText(getResources().getString(R.string.lista_vazia));
                 fab.setVisibility(View.VISIBLE);
@@ -231,7 +259,6 @@ public class MainActivity extends AppCompatActivity{
                 fab.setVisibility(View.GONE);
             }
         }
-
     }
 
     private void setupRecyclerView() {
@@ -296,14 +323,12 @@ public class MainActivity extends AppCompatActivity{
         adapterV2.setClickListener(new ContatoAdapterV2.ItemClickListener() {
             @Override
             public void onItemClick(int position) {
-                Log.i("Position setReViewV2", String.valueOf(position));
                 final ContatoV2 contato = contatosV2.get(position);
                 Intent i = new Intent(getApplicationContext(), DetalheV2Activity.class);
                 i.putExtra("contato", contato);
                 startActivityForResult(i, 2);
             }
         });
-
 
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
             @Override
@@ -322,7 +347,6 @@ public class MainActivity extends AppCompatActivity{
                     updateUI(null);
                 }
             }
-
 
             @Override
             public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {

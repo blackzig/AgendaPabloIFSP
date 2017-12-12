@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import br.edu.ifspsaocarlos.agenda.model.Contato;
@@ -37,6 +38,7 @@ public class ContatoAdapter extends RecyclerView.Adapter<ContatoAdapter.ContatoV
     public void onBindViewHolder(ContatoViewHolder holder, int position) {
         Contato contato  = contatos.get(position) ;
         holder.nome.setText(contato.getNome());
+        holder.favorite.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -52,10 +54,12 @@ public class ContatoAdapter extends RecyclerView.Adapter<ContatoAdapter.ContatoV
 
     public  class ContatoViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         final TextView nome;
+        final ImageView favorite;
 
         ContatoViewHolder(View view) {
             super(view);
             nome = (TextView)view.findViewById(R.id.nome);
+            favorite = view.findViewById(R.id.contact_favorite);
             view.setOnClickListener(this);
         }
 
