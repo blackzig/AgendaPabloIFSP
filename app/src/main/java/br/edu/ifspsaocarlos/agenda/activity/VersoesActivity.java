@@ -25,8 +25,6 @@ public class VersoesActivity extends AppCompatActivity {
 
     Message m = new Message();
 
-    Integer isFirstTime = 0;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,16 +66,19 @@ public class VersoesActivity extends AppCompatActivity {
         AdapterView.OnItemSelectedListener choiced = new AdapterView.OnItemSelectedListener(){
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if(isFirstTime>0){
                     String versao = spinner_versions.getSelectedItem().toString();
                     m.ShortMessage(VersoesActivity.this, "Versão " + versao +" escolhida.");
 
                     if(versao.equals("1")){
                         description.setText("Na versão um, somente é possível cadastrar um contato com nome, " +
                                 "telefone e email.");
+                    }else if(versao.equals("2")){
+                        description.setText("Na versão dois é possível favoritar contatos. " +
+                                "Possibilidade de mostrar só os contatos como favoritos.");
+                    }else if(versao.equals("3")){
+                        description.setText("Na versão três é possível adicionar mais de um número de " +
+                                "telefone. ");
                     }
-                }
-                isFirstTime=1;
             }
 
             @Override
@@ -87,6 +88,4 @@ public class VersoesActivity extends AppCompatActivity {
         };
         spinner_versions.setOnItemSelectedListener(choiced);
     }
-
-
 }

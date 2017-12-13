@@ -30,8 +30,8 @@
             android:label="@string/title_activity_detalhe"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".activity.VersoesActivity" />
-        <activity android:name=".activityV2.ListVersion2Activity" />
-        <activity android:name=".activityV2.DetalheV2Activity"></activity>
+        <activity android:name=".activityV2.DetalheV2Activity" />
+        <activity android:name=".activityV3.DetalheV3Activity"></activity>
     </application>
 
 </manifest>
