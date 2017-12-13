@@ -19,6 +19,7 @@ class SQLiteHelper extends SQLiteOpenHelper {
     static final String KEY_FONE2 = "fone2";
     static final String KEY_EMAIL = "email";
     static final String KEY_FAVORITE = "favorite";
+    static final String KEY_BIRTH = "birth";
     private static int DATABASE_VERSION = 1;
     private static String DATABASE_CREATE = "";
 
@@ -103,7 +104,25 @@ class SQLiteHelper extends SQLiteOpenHelper {
                         executeVersion2();
                         executeVersion3();
                     }
-
+                    break;
+                case 4:
+                    boolean existF = fieldFavoriteExist();//version 2
+                    boolean existFone2 = fieldFone2Exist();//version 3
+                    if(existF==true && existFone2==true){
+                        //in version 3
+                        executeVersion4();
+                    }
+                    else if(existF==false && existFone2==false){
+                        //in version 1
+                        executeVersion2();
+                        executeVersion3();
+                        executeVersion4();
+                    }
+                    else if(existF==true && existFone2==false){
+                        //in version 2
+                        executeVersion3();
+                        executeVersion4();
+                    }
                     break;
                 default:
                     Message m = new Message();
@@ -126,18 +145,34 @@ class SQLiteHelper extends SQLiteOpenHelper {
         db.execSQL(sql);
     }
 
+    private void executeVersion4(){
+        SQLiteDatabase db = getWritableDatabase();
+        String sql = "ALTER TABLE "+DATABASE_TABLE+" ADD COLUMN birth TEXT";
+        db.execSQL(sql);
+    }
+
     private boolean fieldFavoriteExist()
     {
         boolean isExist = true;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor res = db.rawQuery("Select * from "+DATABASE_TABLE+"",null);
-        /*String[] colums = res.getColumnNames();
-
-        for(String s: colums){
-            Log.i("res>>>>>>>>>>", s);
-        }*/
 
         int value = res.getColumnIndex(KEY_FAVORITE);
+
+        if(value == -1)
+        {
+            isExist = false;
+        }
+        return isExist;
+    }
+
+    private boolean fieldFone2Exist()
+    {
+        boolean isExist = true;
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor res = db.rawQuery("Select * from "+DATABASE_TABLE+"",null);
+
+        int value = res.getColumnIndex(KEY_FONE2);
 
         if(value == -1)
         {

@@ -34,13 +34,16 @@ import java.util.List;
 import br.edu.ifspsaocarlos.agenda.R;
 import br.edu.ifspsaocarlos.agenda.activityV2.DetalheV2Activity;
 import br.edu.ifspsaocarlos.agenda.activityV3.DetalheV3Activity;
+import br.edu.ifspsaocarlos.agenda.activityV4.DetalheV4Activity;
 import br.edu.ifspsaocarlos.agenda.adapter.ContatoAdapter;
 import br.edu.ifspsaocarlos.agenda.adapter.ContatoAdapterV2;
 import br.edu.ifspsaocarlos.agenda.adapter.ContatoAdapterV3;
+import br.edu.ifspsaocarlos.agenda.adapter.ContatoAdapterV4;
 import br.edu.ifspsaocarlos.agenda.data.ContatoDAO;
 import br.edu.ifspsaocarlos.agenda.model.Contato;
 import br.edu.ifspsaocarlos.agenda.model.ContatoV2;
 import br.edu.ifspsaocarlos.agenda.model.ContatoV3;
+import br.edu.ifspsaocarlos.agenda.model.ContatoV4;
 
 
 public class MainActivity extends AppCompatActivity{
@@ -51,12 +54,14 @@ public class MainActivity extends AppCompatActivity{
     private List<Contato> contatos = new ArrayList<>();
     private List<ContatoV2> contatosV2 = new ArrayList<>();
     private List<ContatoV3> contatosV3 = new ArrayList<>();
+    private List<ContatoV4> contatosV4 = new ArrayList<>();
 
     private TextView empty;
 
     private ContatoAdapter adapter;
     private ContatoAdapterV2 adapterV2;
     private ContatoAdapterV3 adapterV3;
+    private ContatoAdapterV4 adapterV4;
 
     private SearchView searchView;
 
@@ -118,6 +123,8 @@ public class MainActivity extends AppCompatActivity{
                     i = new Intent(getApplicationContext(), DetalheV2Activity.class);
                 }else if(versao.equals("3")){
                     i = new Intent(getApplicationContext(), DetalheV3Activity.class);
+                }else if(versao.equals("4")){
+                    i = new Intent(getApplicationContext(), DetalheV4Activity.class);
                 }
                 startActivityForResult(i, 1);
             }
@@ -194,6 +201,15 @@ public class MainActivity extends AppCompatActivity{
                     setupRecyclerViewV3();
 
                     contatosV3.addAll(cDAO.returnJustFavoritesContactsV3());
+                    empty.setText(getResources().getString(R.string.contato_nao_encontrado));
+                    fab.setVisibility(View.VISIBLE);
+                }else if(versao.equals("4")){
+                    contatosV4.clear();
+                    adapterV4 = new ContatoAdapterV4(contatosV4, this);
+                    recyclerView.setAdapter(adapterV4);
+                    setupRecyclerViewV4();
+
+                    contatosV4.addAll(cDAO.returnJustFavoritesContactsV4());
                     empty.setText(getResources().getString(R.string.contato_nao_encontrado));
                     fab.setVisibility(View.VISIBLE);
                 }
@@ -293,6 +309,22 @@ public class MainActivity extends AppCompatActivity{
             }
             else {
                 contatosV3.addAll(cDAO.<ContatoV3>buscaContato(nomeContato));
+                empty.setText(getResources().getString(R.string.contato_nao_encontrado));
+                fab.setVisibility(View.GONE);
+            }
+        }else if(versao.equals("4")){
+            contatosV4.clear();
+            adapterV4 = new ContatoAdapterV4(contatosV4, this);
+            recyclerView.setAdapter(adapterV4);
+            setupRecyclerViewV4();
+
+            if (nomeContato==null) {
+                contatosV4.addAll(cDAO.<ContatoV4>buscaTodosContatos());
+                empty.setText(getResources().getString(R.string.lista_vazia));
+                fab.setVisibility(View.VISIBLE);
+            }
+            else {
+                contatosV4.addAll(cDAO.<ContatoV4>buscaContato(nomeContato));
                 empty.setText(getResources().getString(R.string.contato_nao_encontrado));
                 fab.setVisibility(View.GONE);
             }
@@ -465,4 +497,60 @@ public class MainActivity extends AppCompatActivity{
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
     }
+
+    private void setupRecyclerViewV4() {
+
+        adapterV4.setClickListener(new ContatoAdapterV4.ItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                final ContatoV4 contato = contatosV4.get(position);
+                Intent i = new Intent(getApplicationContext(), DetalheV4Activity.class);
+                i.putExtra("contato", contato);
+                startActivityForResult(i, 2);
+            }
+        });
+
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(final RecyclerView.ViewHolder viewHolder, int swipeDir) {
+                if (swipeDir == ItemTouchHelper.RIGHT) {
+                    ContatoV4 contato = contatosV4.get(viewHolder.getAdapterPosition());
+                    cDAO.apagaContato(contato);
+                    contatos.remove(viewHolder.getAdapterPosition());
+                    recyclerView.getAdapter().notifyDataSetChanged();
+                    showSnackBar(getResources().getString(R.string.contato_apagado));
+                    updateUI(null);
+                }
+            }
+
+            @Override
+            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                Bitmap icon;
+                Paint p = new Paint();
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                    View itemView = viewHolder.itemView;
+                    float height = (float) itemView.getBottom() - (float) itemView.getTop();
+                    float width = height / 3;
+
+                    if (dX > 0) {
+                        p.setColor(ContextCompat.getColor(getBaseContext(), R.color.colorDelete));
+                        RectF background = new RectF((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom());
+                        c.drawRect(background, p);
+                        icon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_account_remove);
+                        RectF icon_dest = new RectF((float) itemView.getLeft() + width, (float) itemView.getTop() + width, (float) itemView.getLeft() + 2 * width, (float) itemView.getBottom() - width);
+                        c.drawBitmap(icon, null, icon_dest, p);
+                    }
+                }
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            }
+        };
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+    }
+
 }

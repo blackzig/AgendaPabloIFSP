@@ -12,6 +12,7 @@ import br.edu.ifspsaocarlos.agenda.message.Message;
 import br.edu.ifspsaocarlos.agenda.model.Contato;
 import br.edu.ifspsaocarlos.agenda.model.ContatoV2;
 import br.edu.ifspsaocarlos.agenda.model.ContatoV3;
+import br.edu.ifspsaocarlos.agenda.model.ContatoV4;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ public class ContatoDAO {
     List<Contato> contatos = new ArrayList();
     List<ContatoV2> contatosV2 = new ArrayList();
     List<ContatoV3> contatosV3 = new ArrayList();
+    List<ContatoV4> contatosV4 = new ArrayList();
 
     String versao = "";
 
@@ -48,6 +50,8 @@ public class ContatoDAO {
                 return (List<T>) (contatosV2 = searchAllContactsVersion2());
             case 3:
                 return (List<T>) (contatosV3 = searchAllContactsVersion3());
+            case 4:
+                return (List<T>) (contatosV4 = searchAllContactsVersion4());
             default:
                 Message m = new Message();
                 m.LongMessage(appContext, "Você está utilizando a versão " + version);
@@ -126,6 +130,31 @@ public class ContatoDAO {
         return contatosV3;
     }
 
+    private List<ContatoV4> searchAllContactsVersion4(){
+        contatosV4.clear();
+        Cursor cursor;
+
+        String[] cols=new String[] {SQLiteHelper.KEY_ID,SQLiteHelper.KEY_NAME, SQLiteHelper.KEY_FONE, SQLiteHelper.KEY_EMAIL, SQLiteHelper.KEY_FAVORITE, SQLiteHelper.KEY_FONE2, SQLiteHelper.KEY_BIRTH};
+
+        cursor = database.query(SQLiteHelper.DATABASE_TABLE, cols, null , null,
+                null, null, SQLiteHelper.KEY_NAME);
+
+        while (cursor.moveToNext())
+        {
+            ContatoV4 contato = new ContatoV4();
+            contato.setId(cursor.getInt(0));
+            contato.setNome(cursor.getString(1));
+            contato.setFone(cursor.getString(2));
+            contato.setEmail(cursor.getString(3));
+            contato.setFavorite(cursor.getInt(4));
+            contato.setFone2(cursor.getString(5));
+            contato.setBirth(cursor.getString(6));
+            contatosV4.add(contato);
+        }
+        cursor.close();
+        return contatosV4;
+    }
+
     public List<ContatoV2> returnJustFavoritesContacts(){
         contatosV2.clear();
         Cursor cursor;
@@ -175,6 +204,33 @@ public class ContatoDAO {
         }
         cursor.close();
         return contatosV3;
+    }
+
+    public List<ContatoV4> returnJustFavoritesContactsV4(){
+        contatosV4.clear();
+        Cursor cursor;
+
+        String[] cols=new String[] {SQLiteHelper.KEY_ID,SQLiteHelper.KEY_NAME, SQLiteHelper.KEY_FONE, SQLiteHelper.KEY_EMAIL, SQLiteHelper.KEY_FAVORITE, SQLiteHelper.KEY_FONE2, SQLiteHelper.KEY_BIRTH};
+        String where=SQLiteHelper.KEY_FAVORITE + " = ?";
+        String[] argWhere=new String[]{"1"};
+
+        cursor = database.query(SQLiteHelper.DATABASE_TABLE, cols, where , argWhere,
+                null, null, SQLiteHelper.KEY_NAME);
+
+        while (cursor.moveToNext())
+        {
+            ContatoV4 contato = new ContatoV4();
+            contato.setId(cursor.getInt(0));
+            contato.setNome(cursor.getString(1));
+            contato.setFone(cursor.getString(2));
+            contato.setEmail(cursor.getString(3));
+            contato.setFavorite(cursor.getInt(4));
+            contato.setFone2(cursor.getString(5));
+            contato.setBirth(cursor.getString(6));
+            contatosV4.add(contato);
+        }
+        cursor.close();
+        return contatosV4;
     }
 
     public <T> List<T> buscaContato(String nome)
@@ -237,6 +293,26 @@ public class ContatoDAO {
                 contato.setFone2(cursor.getString(5));
                 contatos.add((T) contato);
             }
+        }else if(versao.equals("4")){
+            String[] cols=new String[] {SQLiteHelper.KEY_ID,SQLiteHelper.KEY_NAME, SQLiteHelper.KEY_FONE, SQLiteHelper.KEY_EMAIL, SQLiteHelper.KEY_FAVORITE, SQLiteHelper.KEY_FONE2, SQLiteHelper.KEY_BIRTH};
+            String where=SQLiteHelper.KEY_NAME + " like ? or " +SQLiteHelper.KEY_EMAIL+" like ?";
+            String[] argWhere=new String[]{nome, nome + "%"};
+
+            cursor = database.query(SQLiteHelper.DATABASE_TABLE, cols, where , argWhere,
+                    null, null, SQLiteHelper.KEY_NAME);
+
+            while (cursor.moveToNext())
+            {
+                ContatoV4 contato = new ContatoV4();
+                contato.setId(cursor.getInt(0));
+                contato.setNome(cursor.getString(1));
+                contato.setFone(cursor.getString(2));
+                contato.setEmail(cursor.getString(3));
+                contato.setFavorite(cursor.getInt(4));
+                contato.setFone2(cursor.getString(5));
+                contato.setBirth(cursor.getString(6));
+                contatos.add((T) contato);
+            }
         }
         cursor.close();
         database.close();
@@ -294,6 +370,25 @@ public class ContatoDAO {
         database.close();
     }
 
+    public void salvaContatoV4(ContatoV4 c) {
+        database=dbHelper.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(SQLiteHelper.KEY_NAME, c.getNome());
+        values.put(SQLiteHelper.KEY_FONE, c.getFone());
+        values.put(SQLiteHelper.KEY_FONE2, c.getFone2());
+        values.put(SQLiteHelper.KEY_EMAIL, c.getEmail());
+        values.put(SQLiteHelper.KEY_FAVORITE, c.getFavorite());
+        values.put(SQLiteHelper.KEY_BIRTH, c.getBirth());
+
+        if (c.getId()>0)
+            database.update(SQLiteHelper.DATABASE_TABLE, values, SQLiteHelper.KEY_ID + "="
+                    + c.getId(), null);
+        else
+            database.insert(SQLiteHelper.DATABASE_TABLE, null, values);
+
+        database.close();
+    }
+
     public void apagaContato(Contato c)
     {
         database=dbHelper.getWritableDatabase();
@@ -311,6 +406,14 @@ public class ContatoDAO {
     }
 
     public void apagaContato(ContatoV3 c)
+    {
+        database=dbHelper.getWritableDatabase();
+        database.delete(SQLiteHelper.DATABASE_TABLE, SQLiteHelper.KEY_ID + "="
+                + c.getId(), null);
+        database.close();
+    }
+
+    public void apagaContato(ContatoV4 c)
     {
         database=dbHelper.getWritableDatabase();
         database.delete(SQLiteHelper.DATABASE_TABLE, SQLiteHelper.KEY_ID + "="

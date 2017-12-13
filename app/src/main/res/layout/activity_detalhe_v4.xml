@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordlayoutdetalhe"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context="br.edu.ifspsaocarlos.agenda.activityV4.DetalheV4Activity">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        <TextView
+            android:id="@+id/textViewNome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/nome">
+        </TextView>
+
+
+        <EditText
+            android:id="@+id/editTextNomeV2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+        </EditText>
+        <TextView
+            android:id="@+id/textViewFone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/fone">
+        </TextView>
+        <EditText
+            android:id="@+id/editTextFoneV2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+        </EditText>
+
+        <TextView
+            android:id="@+id/textViewFoneV3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fone 2">
+        </TextView>
+        <EditText
+            android:id="@+id/editTextFoneV3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+        </EditText>
+
+        <TextView
+            android:id="@+id/textViewEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/email" >
+        </TextView>
+        <EditText
+            android:id="@+id/editTextEmailV2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+        </EditText>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Escolha a Data"
+                android:onClick="showDatePickerDialog" />
+
+            <EditText
+                android:id="@+id/edit_birth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Data Nascimento">
+            </EditText>
+
+        </LinearLayout>
+
+
+        <CheckBox
+            android:id="@+id/cb_favorito"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Favorito"/>
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

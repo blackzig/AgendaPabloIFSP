@@ -78,6 +78,9 @@ public class VersoesActivity extends AppCompatActivity {
                     }else if(versao.equals("3")){
                         description.setText("Na versão três é possível adicionar mais de um número de " +
                                 "telefone. ");
+                    }else if(versao.equals("4")){
+                        description.setText("Na versão quatro é possível adicionar a data de nascimento do contato " +
+                                "e pesquisar por email e não só pelo nome.");
                     }
             }
 
